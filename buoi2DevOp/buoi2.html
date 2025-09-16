@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Đăng nhập</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --accent: #2563eb;
+      --muted: #6b7280;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, var(--bg), #e9f0ff);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 2rem;
+      color: #111827;
+    }
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(16,24,40,0.08);
+      padding: 2rem;
+    }
+    h1 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.5rem;
+    }
+    p.lead {
+      margin: 0 0 1.25rem 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    label {
+      display:block;
+      font-size:0.9rem;
+      margin-bottom:0.35rem;
+    }
+    .field {
+      margin-bottom: 1rem;
+    }
+    input[type="text"],
+    input[type="password"],
+    input[type="email"] {
+      width: 100%;
+      padding: 0.75rem 0.9rem;
+      border: 1px solid #e6e9ef;
+      border-radius: 8px;
+      outline: none;
+      font-size: 0.95rem;
+    }
+    input:focus {
+      box-shadow: 0 0 0 4px rgba(37,99,235,0.08);
+      border-color: var(--accent);
+    }
+    .row {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 1rem;
+    }
+    .checkbox {
+      display:flex;
+      align-items:center;
+      gap:0.5rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    button {
+      width:100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 10px;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .meta {
+      margin-top: 1rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .error {
+      color: #b91c1c;
+      font-size: 0.9rem;
+      margin-top: -0.25rem;
+      margin-bottom: 0.75rem;
+    }
+    .show-pass {
+      position: relative;
+    }
+    .toggle-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    @media (max-width:420px){
+      .card { padding: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card" role="main" aria-labelledby="loginTitle">
+    <h1 id="loginTitle">Đăng nhập</h1>
+    <p class="lead">Đăng nhập để tiếp tục vào trang của bạn.</p>
+
+    <form id="loginForm" method="POST" action="/login">
+      <!-- action="/login" chỉ là ví dụ — đổi theo endpoint backend của bạn -->
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" placeholder="you@example.com" required autocomplete="username" />
+        <div id="emailError" class="error" aria-live="polite" style="display:none"></div>
+      </div>
+
+      <div class="field show-pass">
+        <label for="password">Mật khẩu</label>
+        <input id="password" name="password" type="password" placeholder="Nhập mật khẩu" required autocomplete="current-password" minlength="6" />
+        <button type="button" class="toggle-btn" id="togglePass" aria-pressed="false" aria-label="Hiện mật khẩu">Hiện</button>
+        <div id="passError" class="error" aria-live="polite" style="display:none"></div>
+      </div>
+
+      <div class="row" style="margin-bottom: 1rem;">
+        <label class="checkbox"><input type="checkbox" name="remember" /> Ghi nhớ đăng nhập</label>
+        <a href="#" style="color:var(--accent); text-decoration:none; font-size:0.9rem;">Quên mật khẩu?</a>
+      </div>
+
+      <button type="submit">Đăng nhập</button>
+    </form>
+
+    <div class="meta">Hoặc <a href="#" style="color:var(--accent); text-decoration:none;">tạo tài khoản mới</a></div>
+  </main>
+
+  <script>
+    // JS nhỏ cho trải nghiệm: hiện/ẩn mật khẩu + kiểm tra cơ bản trước submit
+    const form = document.getElementById('loginForm');
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const emailError = document.getElementById('emailError');
+    const passError = document.getElementById('passError');
+    const toggle = document.getElementById('togglePass');
+
+    toggle.addEventListener('click', () => {
+      const shown = password.type === 'text';
+      password.type = shown ? 'password' : 'text';
+      toggle.textContent = shown ? 'Hiện' : 'Ẩn';
+      toggle.setAttribute('aria-pressed', String(!shown));
+    });
+
+    function validateEmail(v) {
+      // kiểm tra đơn giản
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    }
+
+    form.addEventListener('submit', (e) => {
+      let ok = true;
+      emailError.style.display = 'none';
+      passError.style.display = 'none';
+
+      if (!validateEmail(email.value.trim())) {
+        emailError.textContent = 'Vui lòng nhập email hợp lệ.';
+        emailError.style.display = 'block';
+        ok = false;
+      }
+      if (password.value.length < 6) {
+        passError.textContent = 'Mật khẩu phải có ít nhất 6 ký tự.';
+        passError.style.display = 'block';
+        ok = false;
+      }
+
+      if (!ok) {
+        e.preventDefault();
+        return false;
+      }
+
+      // Nếu bạn dùng fetch/AJAX để gửi, có thể ngăn submit mặc định và xử lý ở đây.
+      // e.preventDefault();
+      // fetch(...)
+
+      return true; // form sẽ submit tới action="/login"
+    });
+  </script>
+</body>
+</html>
